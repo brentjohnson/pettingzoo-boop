@@ -48,6 +48,7 @@ class BoopEnv(AECEnv):
         
     def reset(self, seed=None, options=None):
         self.agents = self.possible_agents[:]
+        self._cumulative_rewards = {agent: 0 for agent in self.agents}
         self.board = np.zeros((self.board_size, self.board_size, 2), dtype=np.int8)
         self._agent_selector = agent_selector(self.agents)
         self.agent_selection = self._agent_selector.reset()
@@ -89,6 +90,12 @@ class BoopEnv(AECEnv):
             return self._was_dead_step(action)
         
         agent = self.agent_selection
+
+        # the agent which stepped last had its _cumulative_rewards accounted for
+        # (because it was returned by last()), so the _cumulative_rewards for this
+        # agent should start again at 0
+        self._cumulative_rewards[agent] = 0
+
         player_idx = self.agents.index(agent)
         
         # Convert action to coordinates
@@ -117,6 +124,8 @@ class BoopEnv(AECEnv):
         # Switch to next agent
         self.agent_selection = self._agent_selector.next()
         
+        self._accumulate_rewards()
+
         return self.observe(agent), self.rewards[agent], self.terminations[agent], self.truncations[agent], self.infos[agent]
 
     def observe(self, agent):
