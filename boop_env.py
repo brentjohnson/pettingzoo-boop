@@ -81,9 +81,8 @@ class BoopEnv(AECEnv):
                         if np.all(self.board[push_x, push_y] == 0):
                             self.board[push_x, push_y] = self.board[new_x, new_y]
                             self.board[new_x, new_y] = 0
-                        # If the push position is occupied, remove the piece
-                        else:
-                            self.board[new_x, new_y] = 0
+
+                        # If the push position is occupied, do nothing
 
     def step(self, action):
         if self.terminations[self.agent_selection] or self.truncations[self.agent_selection]:
